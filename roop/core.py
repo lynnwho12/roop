@@ -26,7 +26,7 @@ warnings.filterwarnings('ignore', category=FutureWarning, module='insightface')
 warnings.filterwarnings('ignore', category=UserWarning, module='torchvision')
 
 
-def parse_args() -> None:
+def parse_args(source_path,target_path,output_path) -> None:
     signal.signal(signal.SIGINT, lambda signal_number, frame: destroy())
     program = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=100))
     program.add_argument('-s', '--source', help='select an source image', dest='source_path')
@@ -50,6 +50,12 @@ def parse_args() -> None:
     program.add_argument('-v', '--version', action='version', version=f'{roop.metadata.name} {roop.metadata.version}')
 
     args = program.parse_args()
+
+    #自定义参数，外部调用函数接口
+    args.source_path=source_path
+    args.target_path=target_path
+    args.output_path=output_path
+    args.execution_provider="cuda"
 
     roop.globals.source_path = args.source_path
     roop.globals.target_path = args.target_path
@@ -205,8 +211,8 @@ def destroy() -> None:
     sys.exit()
 
 
-def run() -> None:
-    parse_args()
+def run(source_path,target_path,output_path) -> None:
+    parse_args(source_path,target_path,output_path)
     if not pre_check():
         return
     for frame_processor in get_frame_processors_modules(roop.globals.frame_processors):
